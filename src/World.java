@@ -1,6 +1,9 @@
-import java.util.Map;
+import java.util.HashMap;
 
 public class World{
+	// singleton instance
+	private static World instance = null;
+	
 	// interface inputs
 	public double solarLuminosity; // solar-luminosity
 	public double surfaceAlbedo; //albedo-of-surface
@@ -9,30 +12,53 @@ public class World{
 	public double blackAlbedo; //albedo-of-black
 	public double whiteAlbedo; //albedo-of-white
 	
-	private static World instance = null;
+	// map inside a map representing x,y grid for patches
+	private HashMap<Integer, HashMap<Integer, Patch>> patches 
+	= new HashMap<Integer, HashMap<Integer, Patch>>(); 
 	
-	private Map<Integer, Map<Integer, Patch>> patches; //Map inside a map representing coordinates
-	// patches.get(x).get(y);
-	
-	private World() { //setup procedure
-		this.seedBlackRandomly();
-		this.seedWhiteRandomly();
-		this.randomizeAge();
-		// calculate temperature of each patch (NO DIFFUSION)
-		this.setGlobalTemperature();
+	// private constructor for singleton
+	private World() {
 	} 
 	
-	public static World getInstance(){ //inputs for private constructor needed
+	// get singleton instance
+	public static World getInstance(){ 
 		if (instance == null) {
 			instance = new World();
 		}
 		return instance;
 	}
 	
-	public void go() { //go procedure
+	// setup procedure
+	public void setup(double sl, double sa, int sb, int sw, double ba, double wa) {
+		this.solarLuminosity = sl;
+		this.surfaceAlbedo = sa;
+		this.startPercentBlack = sb;
+		this.startPercentWhite = sw;
+		this.blackAlbedo = ba;
+		this.whiteAlbedo = wa;
+		
+		this.generatePatches();
+		//this.seedBlackRandomly();
+		//this.seedWhiteRandomly();
+		//this.randomizeAge();
+		// calculate temperature of each patch (NO DIFFUSION)
+		//this.setGlobalTemperature();
 	}
 	
+	
+	// go procedure
+	public void go() { 
+	}
+	
+	// instantiating empty patches inside map
 	private void generatePatches() { 
+		for (int x=Params.xStart; x<=Params.xEnd; x++) {
+			for (int y=Params.yStart; y<=Params.yEnd; y++) {
+				HashMap<Integer, Patch> innerMap = new HashMap<Integer, Patch>();
+				innerMap.put(y, new Patch());
+				patches.put(x, innerMap);
+			}
+		}
 	}
 	
 	public void seedBlackRandomly(){ //seed-black-randomly

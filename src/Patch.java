@@ -2,8 +2,7 @@
 public class Patch {
 	private double temperature;
 	private Daisy daisy;
-	private World world = World.getInstance();
-	
+
 	public void sproutBlackDaisy() { //set-as-black
 		this.daisy = new Daisy(0, Daisy.Color.BLACK);
 	}
@@ -13,14 +12,14 @@ public class Patch {
 	}
 	
 	
-	public void calcTemperature(){ // calc-temperature in NL
+	public void calcTemperature(){ // calc-temperature
 		double absorbedLuminosity = 0;
 		double localHeating = 0;
 		
 		if (!this.hasDaisy()) {
-			absorbedLuminosity = ((1 - world.surfaceAlbedo) * world.solarLuminosity);
+			absorbedLuminosity = ((1 - World.getInstance().surfaceAlbedo) * World.getInstance().solarLuminosity);
 		} else {
-			absorbedLuminosity = ((1 - daisy.getAlbedo()) * world.solarLuminosity);
+			absorbedLuminosity = ((1 - daisy.getAlbedo()) * World.getInstance().solarLuminosity);
 		}
 		
 		if (absorbedLuminosity > 0) {
@@ -32,7 +31,11 @@ public class Patch {
 		temperature = temperature + localHeating / 2;
 	}
 	
+	//check if patch contains daisy
 	private boolean hasDaisy() {
-		return true; //check if patch contains daisy
+		if (daisy == null) {
+			return false;
+		}
+		return true; 
 	}
 }
