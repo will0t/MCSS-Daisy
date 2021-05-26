@@ -50,14 +50,6 @@ public class World{
 		this.seedRandomly(Daisy.Color.WHITE);
 		this.calculatePatchesTemp();
 		this.setGlobalTemperature();
-		
-		//for (int x=Params.xStart; x<=Params.xEnd; x++) {
-		//	for (int y=Params.yStart; y<=Params.yEnd; y++) {
-		//		Coordinate coordinate = new Coordinate(x,y);
-		//		Patch patch = patches.get(coordinate);
-		//		System.out.println("Temperature: " + patch.getTemperature());
-		//	}
-		//}
 	}
 	
 	
@@ -72,9 +64,11 @@ public class World{
 		//	}
 		//}
 		//System.out.println("Global temperature: " + World.globalTemp);
+		
 		this.calculatePatchesTemp();
 		this.diffuseTemperature();
 		
+		// ask daisies [check-survivability]
 		HashMap<Coordinate,Patch> copyPatches = this.deepCopyPatches(this.patches);
 		for (int x=Params.xStart; x<=Params.xEnd; x++) {
 			for (int y=Params.yStart; y<=Params.yEnd; y++) {
@@ -84,6 +78,9 @@ public class World{
 				}
 			}
 		}
+		
+		this.setGlobalTemperature();
+		// TODO: scenarios not done yet
 	}
 	
 	// check-survivability
@@ -99,21 +96,22 @@ public class World{
 			Random rand = new Random();
 			float randomFloat = rand.nextFloat();
 			if (randomFloat < seedThreshold) {
-				// get a random neighbour without daisy
+				// making an array list of neighbours without daisy
 				ArrayList<Patch> patchNeighbours = this.getPatchNeighbours(coordinate);
-				System.out.println("Size: " + patchNeighbours.size());
 				for (int i=patchNeighbours.size()-1; i>=0; i--) {
 					Patch patchNeighbour = patchNeighbours.get(i);
-					if (patchNeighbours.get(i).hasDaisy()) {
+					if (patchNeighbour.hasDaisy()) {
 						System.out.println("Has neighbour, removing.");
 						patchNeighbours.remove(i);
 					}
 				}
 				
+				// checking if neighbours in list have daisy
 				//for (int i=0; i<patchNeighbours.size(); i++) {
 				//	System.out.println("Has daisy: " + patchNeighbours.get(i).hasDaisy());
 				//}
 				
+				// randomly select a random neighbour without daisy
 				if (patchNeighbours.size() > 0) {
 					int randomInt = rand.nextInt(patchNeighbours.size());
 					seedingPlace = patchNeighbours.get(randomInt);
@@ -129,11 +127,11 @@ public class World{
 		}
 	}
 	
+	// get patch neighbours of a coordinate
 	private ArrayList<Patch> getPatchNeighbours(Coordinate coordinate){
 		ArrayList<Coordinate> neighbourCoordinates = coordinate.generateNeighbours();
 		ArrayList<Patch> patchNeighbours = new ArrayList<Patch>();
 		for (int i=0; i<neighbourCoordinates.size(); i++) {
-			//System.out.println("Neighbour coordinate is: " + neighbourCoordinates.get(i));
 			Patch patchNeighbour = patches.get(neighbourCoordinates.get(i));
 			patchNeighbours.add(patchNeighbour);
 		}
@@ -178,6 +176,7 @@ public class World{
 		}
 	}
 	
+	// deep copying patches
 	private HashMap<Coordinate, Patch> deepCopyPatches(HashMap<Coordinate,Patch> patches) {
 		HashMap<Coordinate, Patch> copyPatches = new HashMap<Coordinate,Patch>();
 		for (int x=Params.xStart; x<=Params.xEnd; x++) {
@@ -192,8 +191,9 @@ public class World{
 		}
 		return copyPatches;
 	}
-		
-	public void seedRandomly(Daisy.Color color){ //seed-black-randomly & seed-white-randomly
+	
+	//seed-black-randomly & seed-white-randomly
+	public void seedRandomly(Daisy.Color color){ 
 		int colorPercent;
 		if (color == Daisy.Color.BLACK) {
 			colorPercent = this.startPercentBlack;
@@ -219,8 +219,9 @@ public class World{
 			}
 		}
 	}
-
-	public void randomizeAge(Daisy daisy) { //ask daisies [set age random max-age]	
+	
+	//ask daisies [set age random max-age]	
+	public void randomizeAge(Daisy daisy) { 
 		int randomAge = ThreadLocalRandom.current().nextInt(0, Params.maxAge + 1);
 		daisy.setAge(randomAge);
 	}
@@ -234,7 +235,8 @@ public class World{
 		}
 	}
 	
-	public void setGlobalTemperature() { //set global-temperature (mean [temperature] of patches)
+	//set global-temperature (mean [temperature] of patches)
+	public void setGlobalTemperature() { 
 		int count = 0;
 		double total = 0;
 		for (int x=Params.xStart; x<=Params.xEnd; x++) {

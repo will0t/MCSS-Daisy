@@ -1,12 +1,14 @@
 public class Patch {
 	private double temperature;
 	private Daisy daisy;
-
-	public void sproutDaisy(Daisy.Color color) { //set-as-black and set-as-white
+	
+	//set-as-black & set-as-white
+	public void sproutDaisy(Daisy.Color color) { 
 		this.daisy = new Daisy(0, color);
 	}
 	
-	public void calcTemperature(){ // calc-temperature
+	// calc-temperature
+	public void calcTemperature(){ 
 		double absorbedLuminosity = 0;
 		double localHeating = 0;
 		
