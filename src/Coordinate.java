@@ -40,15 +40,32 @@ public class Coordinate {
 		return false;
 	}
 	
+	// Adjust the coordinate so that the grid wraps around
+	private void adjustCoordinate(Coordinate coords) {
+		if(coords.getX() > Params.xEnd)
+			coords.xcor -= 29;
+		
+		if(coords.getX() < Params.xStart)
+			coords.xcor += 29;
+		
+		if(coords.getY() > Params.yEnd)
+			coords.ycor -= 29;
+		
+		if(coords.getY() < Params.yStart)
+			coords.ycor += 29;
+	}
+	
 	public ArrayList<Coordinate> generateNeighbours(){
 		ArrayList<Coordinate> neighbours = new ArrayList<Coordinate>();
 		for (int x=-1; x<=1; x++) {
 			for (int y=-1; y<=1; y++) {
+				// Skip the original coordinate
+				if(x == 0 && y == 0) continue;
+				
 				Coordinate neighbour = new Coordinate(this.xcor+x, this.ycor+y);
-				// check if out of grid and if coordinate equal to centre
-				if (!neighbour.outOfGrid() && !(x == 0 && y == 0)) {
-					neighbours.add(neighbour);
-				}
+				adjustCoordinate(neighbour);
+				
+				neighbours.add(neighbour);
 			}
 		}
 		return neighbours;
