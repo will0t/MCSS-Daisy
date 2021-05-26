@@ -1,3 +1,4 @@
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.concurrent.ThreadLocalRandom;
 
@@ -58,8 +59,46 @@ public class World{
 	
 	// go procedure
 	public void go() { 
-		
+		this.diffuseTemperature();
 		recordData();
+	}
+	
+	private void diffuseTemperature() {
+		// make a deep copy of the patches hashmap
+		HashMap<Coordinate, Patch> copyPatches = new HashMap<Coordinate,Patch>();
+		for (int x=Params.xStart; x<=Params.xEnd; x++) {
+			for (int y=Params.yStart; y<=Params.yEnd; y++) {
+				Coordinate key = new Coordinate(x,y);
+				Patch value = patches.get(key);
+				Patch deepCopy = new Patch();
+				deepCopy.setTemperature(value.getTemperature());
+				copyPatches.put(key, deepCopy);
+			}
+		}
+		
+		// loop through each patch of deep copied patches
+		for (int x=Params.xStart; x<=Params.xEnd; x++) {
+			for (int y=Params.yStart; y<=Params.yEnd; y++) {
+				Coordinate sourceCoordinate = new Coordinate(x,y);
+				Patch sourcePatch = patches.get(sourceCoordinate);
+				Patch copyPatch = copyPatches.get(sourceCoordinate);
+								
+				// calculate 1/8 of temperature diffused
+				double amountToDiffuse = copyPatch.getTemperature() * 0.5 / 8;
+				System.out.println("Amount to diffuse: "+amountToDiffuse);
+				
+				// diffuse it in the actual patches
+				ArrayList<Coordinate> neighbours = sourceCoordinate.generateNeighbours();
+				for (int i=0; i<neighbours.size(); i++) {
+					Coordinate neighbourCoordinate = neighbours.get(i);
+					Patch neighbourPatch = patches.get(neighbourCoordinate);
+					// adding to neighbour
+					neighbourPatch.addToTemperature(amountToDiffuse);
+					// deducting from source
+					sourcePatch.addToTemperature(-amountToDiffuse);
+				}
+			}
+		}		
 	}
 	
 	// instantiating empty patches inside map
@@ -122,6 +161,7 @@ public class World{
 			}
 		}
 	}
+	
 	public void setGlobalTemperature() { //set global-temperature (mean [temperature] of patches)
 		int count = 0;
 		double total = 0;
