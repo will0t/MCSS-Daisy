@@ -13,6 +13,11 @@ public class World{
 	public double blackAlbedo; //albedo-of-black
 	public double whiteAlbedo; //albedo-of-white
 	
+	// global variables
+	public static double globalTemp = 0; // global-temperature
+	public static int numBlacks = 0; //num-blacks
+	public static int numWhites = 0; //num-whites
+	
 	// map inside a map representing x,y grid for patches
 	private HashMap<Coordinate, Patch> patches 
 	= new HashMap<Coordinate, Patch>(); 
@@ -41,9 +46,9 @@ public class World{
 		this.generatePatches();
 		this.seedRandomly(Daisy.Color.BLACK);
 		this.seedRandomly(Daisy.Color.WHITE);
-		//this.randomizeAge();
 		// calculate temperature of each patch (NO DIFFUSION)
-		//this.setGlobalTemperature();
+		this.calculatePatchesTemp();
+		this.setGlobalTemperature();
 	}
 	
 	
@@ -80,18 +85,39 @@ public class World{
 			int randomY = ThreadLocalRandom.current().nextInt(Params.yStart, Params.yEnd + 1);
 			
 			Patch selectedPatch = patches.get(new Coordinate(randomX, randomY));
-			System.out.println(selectedPatch);
 			if (!selectedPatch.hasDaisy()) {
 				selectedPatch.sproutDaisy(color);
+				randomizeAge(selectedPatch.getDaisy());
 				count += 1; 
 			}
 		}
 	}
 
-	public void randomizeAge() { //ask daisies [set age random max-age]	
+	public void randomizeAge(Daisy daisy) { //ask daisies [set age random max-age]	
+		int randomAge = ThreadLocalRandom.current().nextInt(0, Params.maxAge + 1);
+		daisy.setAge(randomAge);
 	}
 	
+	private void calculatePatchesTemp() {
+		for (int x=Params.xStart; x<=Params.xEnd; x++) {
+			for (int y=Params.yStart; y<=Params.yEnd; y++) {
+				Coordinate coordinate = new Coordinate(x,y);
+				patches.get(coordinate).calcTemperature();
+			}
+		}
+	}
 	public void setGlobalTemperature() { //set global-temperature (mean [temperature] of patches)
-		Params.globalTemp = 0;
+		int count = 0;
+		double total = 0;
+		for (int x=Params.xStart; x<=Params.xEnd; x++) {
+			for (int y=Params.yStart; y<=Params.yEnd; y++) {
+				Coordinate coordinate = new Coordinate(x,y);
+				total += patches.get(coordinate).getTemperature();
+				System.out.println("Temperature added: " + patches.get(coordinate).getTemperature());
+				count += 1;
+			}
+		}
+		World.globalTemp = total / count;
+		System.out.println("Global temperature: " + World.globalTemp);
 	}
 }

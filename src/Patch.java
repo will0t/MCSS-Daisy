@@ -31,6 +31,9 @@ public class Patch {
 		return this.daisy;
 	}
 	
+	public double getTemperature() {
+		return this.temperature;
+	}
 	//check if patch contains daisy
 	public boolean hasDaisy() {
 		if (daisy == null) {

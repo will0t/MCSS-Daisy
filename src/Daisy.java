@@ -23,6 +23,10 @@ public class Daisy {
 		// check-survivability
 	}
 	
+	public void setAge(int age) {
+		this.age = age;
+	}
+	
 	public Color getColor() {
 		return color;
 	}
