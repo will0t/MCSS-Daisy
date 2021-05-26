@@ -31,9 +31,18 @@ public class Patch {
 		return this.daisy;
 	}
 	
+	public void addToTemperature(double add) {
+		this.temperature = this.temperature + add;
+	}
+	
 	public double getTemperature() {
 		return this.temperature;
 	}
+	
+	public void setTemperature(double temp) {
+		this.temperature = temp;
+	}
+	
 	//check if patch contains daisy
 	public boolean hasDaisy() {
 		if (daisy == null) {
