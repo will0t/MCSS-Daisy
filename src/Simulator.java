@@ -29,5 +29,6 @@ public class Simulator {
 			count += 1;
 			// writer.writeToCSV(world);
 		}
+		world.writeToFile("output.csv");
 	}
 }

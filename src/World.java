@@ -5,6 +5,8 @@ public class World{
 	// singleton instance
 	private static World instance = null;
 	
+	private static CSVWriter writer = new CSVWriter();
+	
 	// interface inputs
 	public double solarLuminosity; // solar-luminosity
 	public double surfaceAlbedo; //albedo-of-surface
@@ -49,11 +51,15 @@ public class World{
 		// calculate temperature of each patch (NO DIFFUSION)
 		this.calculatePatchesTemp();
 		this.setGlobalTemperature();
+		
+		recordData();
 	}
 	
 	
 	// go procedure
 	public void go() { 
+		
+		recordData();
 	}
 	
 	// instantiating empty patches inside map
@@ -96,6 +102,16 @@ public class World{
 	public void randomizeAge(Daisy daisy) { //ask daisies [set age random max-age]	
 		int randomAge = ThreadLocalRandom.current().nextInt(0, Params.maxAge + 1);
 		daisy.setAge(randomAge);
+	}
+	
+	private void recordData() {
+		writer.recordData(globalTemp, numWhites, numBlacks, solarLuminosity, 
+				startPercentBlack, startPercentWhite, blackAlbedo, whiteAlbedo, 
+				surfaceAlbedo);
+	}
+	
+	public void writeToFile(String fileName) {
+		writer.writeToFile(fileName);
 	}
 	
 	private void calculatePatchesTemp() {
