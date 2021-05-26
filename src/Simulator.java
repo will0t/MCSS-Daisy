@@ -1,4 +1,3 @@
-import java.util.ArrayList;
 import java.util.Scanner;
 
 public class Simulator {
@@ -9,14 +8,14 @@ public class Simulator {
 		double sl = sc.nextDouble();
 		System.out.print("Albedo of surface: ");
 		double sa = sc.nextDouble();
-		System.out.print("Albedo of whites: ");
-		double wa = sc.nextDouble();
-		System.out.print("Albedo of blacks: ");
-		double ba = sc.nextDouble();
 		System.out.print("Start % black: ");
 		int sb = sc.nextInt();
 		System.out.print("Start % white: ");
 		int sw = sc.nextInt();
+		System.out.print("Albedo of whites: ");
+		double wa = sc.nextDouble();
+		System.out.print("Albedo of blacks: ");
+		double ba = sc.nextDouble();
 		System.out.print("Enter max iteration: ");
 		int iteration = sc.nextInt();
 		

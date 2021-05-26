@@ -1,5 +1,6 @@
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Random;
 import java.util.concurrent.ThreadLocalRandom;
 
 public class World{
@@ -47,29 +48,101 @@ public class World{
 		this.generatePatches();
 		this.seedRandomly(Daisy.Color.BLACK);
 		this.seedRandomly(Daisy.Color.WHITE);
-		// calculate temperature of each patch (NO DIFFUSION)
 		this.calculatePatchesTemp();
 		this.setGlobalTemperature();
+		
+		//for (int x=Params.xStart; x<=Params.xEnd; x++) {
+		//	for (int y=Params.yStart; y<=Params.yEnd; y++) {
+		//		Coordinate coordinate = new Coordinate(x,y);
+		//		Patch patch = patches.get(coordinate);
+		//		System.out.println("Temperature: " + patch.getTemperature());
+		//	}
+		//}
 	}
 	
 	
 	// go procedure
 	public void go() { 
+		// To sanity check patch temperature
+		//for (int x=Params.xStart; x<=Params.xEnd; x++) {
+		//	for (int y=Params.yStart; y<=Params.yEnd; y++) {
+		//		Coordinate coordinate = new Coordinate(x,y);
+		//		Patch patch = patches.get(coordinate);
+		//		System.out.println("Temperature: " + patch.getTemperature());
+		//	}
+		//}
+		//System.out.println("Global temperature: " + World.globalTemp);
+		this.calculatePatchesTemp();
 		this.diffuseTemperature();
+		
+		HashMap<Coordinate,Patch> copyPatches = this.deepCopyPatches(this.patches);
+		for (int x=Params.xStart; x<=Params.xEnd; x++) {
+			for (int y=Params.yStart; y<=Params.yEnd; y++) {
+				Coordinate coordinate = new Coordinate(x,y);
+				if (copyPatches.get(coordinate).hasDaisy()) {
+					this.checkSurvivability(coordinate);	
+				}
+			}
+		}
+	}
+	
+	// check-survivability
+	public void checkSurvivability(Coordinate coordinate) {
+		double seedThreshold = 0;
+		Patch seedingPlace;
+		Patch patch = patches.get(coordinate);
+		Daisy daisy = patch.getDaisy();
+		
+		daisy.setAge(daisy.getAge()+1);
+		if (daisy.getAge() < Params.maxAge) {
+			seedThreshold = ((0.1457 * patch.getTemperature()) - (0.0032 * (Math.pow(patch.getTemperature(), 2))) - 0.6443);
+			Random rand = new Random();
+			float randomFloat = rand.nextFloat();
+			if (randomFloat < seedThreshold) {
+				// get a random neighbour without daisy
+				ArrayList<Patch> patchNeighbours = this.getPatchNeighbours(coordinate);
+				System.out.println("Size: " + patchNeighbours.size());
+				for (int i=patchNeighbours.size()-1; i>=0; i--) {
+					Patch patchNeighbour = patchNeighbours.get(i);
+					if (patchNeighbours.get(i).hasDaisy()) {
+						System.out.println("Has neighbour, removing.");
+						patchNeighbours.remove(i);
+					}
+				}
+				
+				//for (int i=0; i<patchNeighbours.size(); i++) {
+				//	System.out.println("Has daisy: " + patchNeighbours.get(i).hasDaisy());
+				//}
+				
+				if (patchNeighbours.size() > 0) {
+					int randomInt = rand.nextInt(patchNeighbours.size());
+					seedingPlace = patchNeighbours.get(randomInt);
+					if (daisy.getColor() == Daisy.Color.BLACK) {
+						seedingPlace.sproutDaisy(Daisy.Color.BLACK);
+					}else {
+						seedingPlace.sproutDaisy(Daisy.Color.WHITE);
+					}
+				}
+			}
+		} else {
+			daisy = null; //die
+		}
+	}
+	
+	private ArrayList<Patch> getPatchNeighbours(Coordinate coordinate){
+		ArrayList<Coordinate> neighbourCoordinates = coordinate.generateNeighbours();
+		ArrayList<Patch> patchNeighbours = new ArrayList<Patch>();
+		for (int i=0; i<neighbourCoordinates.size(); i++) {
+			//System.out.println("Neighbour coordinate is: " + neighbourCoordinates.get(i));
+			Patch patchNeighbour = patches.get(neighbourCoordinates.get(i));
+			patchNeighbours.add(patchNeighbour);
+		}
+		return patchNeighbours;
 	}
 	
 	private void diffuseTemperature() {
 		// make a deep copy of the patches hashmap
-		HashMap<Coordinate, Patch> copyPatches = new HashMap<Coordinate,Patch>();
-		for (int x=Params.xStart; x<=Params.xEnd; x++) {
-			for (int y=Params.yStart; y<=Params.yEnd; y++) {
-				Coordinate key = new Coordinate(x,y);
-				Patch value = patches.get(key);
-				Patch deepCopy = new Patch();
-				deepCopy.setTemperature(value.getTemperature());
-				copyPatches.put(key, deepCopy);
-			}
-		}
+		HashMap<Coordinate,Patch> copyPatches = this.deepCopyPatches(this.patches);
 		
 		// loop through each patch of deep copied patches
 		for (int x=Params.xStart; x<=Params.xEnd; x++) {
@@ -80,7 +153,6 @@ public class World{
 								
 				// calculate 1/8 of temperature diffused
 				double amountToDiffuse = copyPatch.getTemperature() * 0.5 / 8;
-				System.out.println("Amount to diffuse: "+amountToDiffuse);
 				
 				// diffuse it in the actual patches
 				ArrayList<Coordinate> neighbours = sourceCoordinate.generateNeighbours();
@@ -104,6 +176,21 @@ public class World{
 				patches.put(coordinate, new Patch());
 			}
 		}
+	}
+	
+	private HashMap<Coordinate, Patch> deepCopyPatches(HashMap<Coordinate,Patch> patches) {
+		HashMap<Coordinate, Patch> copyPatches = new HashMap<Coordinate,Patch>();
+		for (int x=Params.xStart; x<=Params.xEnd; x++) {
+			for (int y=Params.yStart; y<=Params.yEnd; y++) {
+				Coordinate key = new Coordinate(x,y);
+				Patch value = patches.get(key);
+				Patch deepCopy = new Patch();
+				deepCopy.setTemperature(value.getTemperature());
+				deepCopy.setDaisy(value.getDaisy());
+				copyPatches.put(key, deepCopy);
+			}
+		}
+		return copyPatches;
 	}
 		
 	public void seedRandomly(Daisy.Color color){ //seed-black-randomly & seed-white-randomly
@@ -154,11 +241,9 @@ public class World{
 			for (int y=Params.yStart; y<=Params.yEnd; y++) {
 				Coordinate coordinate = new Coordinate(x,y);
 				total += patches.get(coordinate).getTemperature();
-				System.out.println("Temperature added: " + patches.get(coordinate).getTemperature());
 				count += 1;
 			}
 		}
 		World.globalTemp = total / count;
-		System.out.println("Global temperature: " + World.globalTemp);
 	}
 }
