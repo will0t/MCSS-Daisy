@@ -3,12 +3,8 @@ public class Patch {
 	private double temperature;
 	private Daisy daisy;
 
-	public void sproutBlackDaisy() { //set-as-black
-		this.daisy = new Daisy(0, Daisy.Color.BLACK);
-	}
-	
-	public void sproutWhiteDaisy() { //set-as-white
-		this.daisy = new Daisy(0, Daisy.Color.WHITE);
+	public void sproutDaisy(Daisy.Color color) { //set-as-black and set-as-white
+		this.daisy = new Daisy(0, color);
 	}
 	
 	
@@ -31,8 +27,12 @@ public class Patch {
 		temperature = temperature + localHeating / 2;
 	}
 	
+	public Daisy getDaisy() {
+		return this.daisy;
+	}
+	
 	//check if patch contains daisy
-	private boolean hasDaisy() {
+	public boolean hasDaisy() {
 		if (daisy == null) {
 			return false;
 		}

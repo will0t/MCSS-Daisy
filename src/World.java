@@ -1,4 +1,5 @@
 import java.util.HashMap;
+import java.util.concurrent.ThreadLocalRandom;
 
 public class World{
 	// singleton instance
@@ -13,8 +14,8 @@ public class World{
 	public double whiteAlbedo; //albedo-of-white
 	
 	// map inside a map representing x,y grid for patches
-	private HashMap<Integer, HashMap<Integer, Patch>> patches 
-	= new HashMap<Integer, HashMap<Integer, Patch>>(); 
+	private HashMap<Coordinate, Patch> patches 
+	= new HashMap<Coordinate, Patch>(); 
 	
 	// private constructor for singleton
 	private World() {
@@ -38,8 +39,8 @@ public class World{
 		this.whiteAlbedo = wa;
 		
 		this.generatePatches();
-		//this.seedBlackRandomly();
-		//this.seedWhiteRandomly();
+		this.seedRandomly(Daisy.Color.BLACK);
+		this.seedRandomly(Daisy.Color.WHITE);
 		//this.randomizeAge();
 		// calculate temperature of each patch (NO DIFFUSION)
 		//this.setGlobalTemperature();
@@ -54,19 +55,39 @@ public class World{
 	private void generatePatches() { 
 		for (int x=Params.xStart; x<=Params.xEnd; x++) {
 			for (int y=Params.yStart; y<=Params.yEnd; y++) {
-				HashMap<Integer, Patch> innerMap = new HashMap<Integer, Patch>();
-				innerMap.put(y, new Patch());
-				patches.put(x, innerMap);
+				Coordinate coordinate = new Coordinate(x,y);
+				patches.put(coordinate, new Patch());
 			}
 		}
 	}
-	
-	public void seedBlackRandomly(){ //seed-black-randomly
+		
+	public void seedRandomly(Daisy.Color color){ //seed-black-randomly & seed-white-randomly
+		int colorPercent;
+		if (color == Daisy.Color.BLACK) {
+			colorPercent = this.startPercentBlack;
+		}else {
+			colorPercent = this.startPercentWhite;
+		}
+		
+		int row = Math.abs(Params.xStart) + Math.abs(Params.xEnd) + 1;
+		int column = Math.abs(Params.yStart) + Math.abs(Params.yEnd) + 1;
+		int totalPatches = row * column;
+		int quota = Math.round(((float)colorPercent/100) * totalPatches); //unclear how netlogo handles decimals
+		
+		int count = 0;
+		while (count < quota) {
+			int randomX = ThreadLocalRandom.current().nextInt(Params.xStart, Params.xEnd + 1);
+			int randomY = ThreadLocalRandom.current().nextInt(Params.yStart, Params.yEnd + 1);
+			
+			Patch selectedPatch = patches.get(new Coordinate(randomX, randomY));
+			System.out.println(selectedPatch);
+			if (!selectedPatch.hasDaisy()) {
+				selectedPatch.sproutDaisy(color);
+				count += 1; 
+			}
+		}
 	}
-	
-	public void seedWhiteRandomly() { //seed-white-randomly	
-	}
-	
+
 	public void randomizeAge() { //ask daisies [set age random max-age]	
 	}
 	
