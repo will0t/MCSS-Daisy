@@ -74,15 +74,7 @@ public class World{
 		recordData();
 		
 		// ask daisies [check-survivability]
-		HashMap<Coordinate,Patch> copyPatches = this.deepCopyPatches(this.patches);
-		for (int x=Params.xStart; x<=Params.xEnd; x++) {
-			for (int y=Params.yStart; y<=Params.yEnd; y++) {
-				Coordinate coordinate = new Coordinate(x,y);
-				if (copyPatches.get(coordinate).hasDaisy()) {
-					this.checkSurvivability(coordinate);	
-				}
-			}
-		}
+		this.checkPatchesSurvivability()
 		
 		this.setGlobalTemperature();
 		// TODO: scenarios not done yet
@@ -129,6 +121,18 @@ public class World{
 			}
 		} else {
 			daisy = null; //die
+		}
+	}
+	
+	private void checkPatchesSurvivability() {
+		HashMap<Coordinate,Patch> copyPatches = this.deepCopyPatches(this.patches);
+		for (int x=Params.xStart; x<=Params.xEnd; x++) {
+			for (int y=Params.yStart; y<=Params.yEnd; y++) {
+				Coordinate coordinate = new Coordinate(x,y);
+				if (copyPatches.get(coordinate).hasDaisy()) {
+					this.checkSurvivability(coordinate);	
+				}
+			}
 		}
 	}
 	
