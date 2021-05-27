@@ -6,5 +6,6 @@ public class Params {
 	public final static int yStart = -14;
 	public final static int yEnd = 14;
 	
+	// storing constants
 	public final static int maxAge = 25; //max-age
 }
