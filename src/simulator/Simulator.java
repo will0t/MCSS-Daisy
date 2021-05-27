@@ -1,5 +1,6 @@
 package simulator;
 
+import java.util.InputMismatchException;
 import java.util.Scanner;
 
 import simulator.World.Scenario;
@@ -15,38 +16,28 @@ public class Simulator {
 		System.out.println("4. Our Luminosity:");
 		System.out.println("5. High Luminosity");
 		
-		while(true) {
-			try {
-				System.out.print("Scenario (1-5):");
-				int scenario = sc.nextInt();
-				
-				if(scenario < 0 || scenario > 5) {
-					continue;
-				}
-				
-				Params.scenario = Scenario.values()[scenario-1];
-				break;
-			} catch (Exception e) {
-				sc.nextLine();
-			}
-		}
-		
+		int scenario = queryInt(sc, "Scenario (1-5): ", 1, 5);
+		Params.scenario = Scenario.values()[scenario-1];
 		System.out.println(Params.scenario.toString() + " selected");
 		
-		System.out.print("Solar luminosity: ");
-		double sl = sc.nextDouble();
-		System.out.print("Albedo of surface: ");
-		double sa = sc.nextDouble();
-		System.out.print("Start % black: ");
-		int sb = sc.nextInt();
-		System.out.print("Start % white: ");
-		int sw = sc.nextInt();
-		System.out.print("Albedo of whites: ");
-		double wa = sc.nextDouble();
-		System.out.print("Albedo of blacks: ");
-		double ba = sc.nextDouble();
-		System.out.print("Enter max iteration: ");
-		int iteration = sc.nextInt();
+		double sl = 1.0;
+		
+		// Only maintain luminosity and ramp-up ramp-down scenario uses this input 
+		if(scenario <= 2) {
+			 sl = queryDouble(sc, "Solar luminosity (0.001-3.000): ", 0.001, 3.000);
+		}
+		
+		double sa = queryDouble(sc, "Albedo of surface (0.0-1.0): ", 0.0, 1.0);
+		
+		int sb = queryInt(sc, "Start % black (0-50): ", 0, 50);
+		
+		int sw = queryInt(sc, "Start % white (0-50): ", 0, 50);
+		
+		double wa = queryDouble(sc, "Albedo of whites (0.0-1.0): ", 0.0, 1.0);
+		
+		double ba = queryDouble(sc, "Albedo of blacks (0.0-1.0): ", 0.0, 1.0);
+		
+		int iteration = queryInt(sc, "Enter max iteration (>0): ", 0, Integer.MAX_VALUE);
 		
 		// Creating world and setup procedure
 		World world = World.getInstance(); 
@@ -57,10 +48,45 @@ public class Simulator {
 		int count = 0;
 		while(count < iteration) {
 			world.go();
-//			System.out.println("Current iteration: " + Integer.toString(count));
 			System.out.println(world);
 			count += 1;
 		}
 		world.writeToFile("output.csv");
+	}
+	
+	private static int queryInt(Scanner sc, String message, 
+			int lb, int ub) {
+		while(true) {
+			try {
+				System.out.print(message);
+				int result = sc.nextInt();
+				
+				if(result < lb || result > ub) {
+					continue;
+				}
+				
+				return result;
+			} catch (InputMismatchException e) {
+				sc.nextLine();
+			}
+		}
+	}
+	
+	private static double queryDouble(Scanner sc, String message, 
+			double lb, double ub) {
+		while(true) {
+			try {
+				System.out.print(message);
+				double result = sc.nextDouble();
+				
+				if(result < lb || result > ub) {
+					continue;
+				}
+				
+				return result;
+			} catch (InputMismatchException e) {
+				sc.nextLine();
+			}
+		}
 	}
 }
