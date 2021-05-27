@@ -1,6 +1,7 @@
 package simulator;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Random;
 import java.util.concurrent.ThreadLocalRandom;
@@ -125,16 +126,30 @@ public class World{
 	
 	// ask daisies [check-survivability]
 	private void checkPatchesSurvivability() {
+		ArrayList<Coordinate> patchesToCheck = new ArrayList<Coordinate>();
 		HashMap<Coordinate,Patch> copyPatches = this.deepCopyPatches(this.patches);
 		for (int x=Params.xStart; x<=Params.xEnd; x++) {
 			for (int y=Params.yStart; y<=Params.yEnd; y++) {
 				Coordinate coordinate = new Coordinate(x,y);
 				// only check survivability when patch has daisy
 				if (copyPatches.get(coordinate).hasDaisy()) {
-					this.checkSurvivability(coordinate);	
+					patchesToCheck.add(coordinate);
 				}
 			}
 		}
+
+		for (int i=0; i<patchesToCheck.size(); i++) {
+			Collections.shuffle(patchesToCheck);
+			
+			// pick random patch coordinate
+			int random = ThreadLocalRandom.current().nextInt(0, patchesToCheck.size());
+			Coordinate pickedPatch = patchesToCheck.get(random);
+			
+			// check-survivability and remove
+			this.checkSurvivability(pickedPatch);
+			patchesToCheck.remove(random);
+		}
+			
 	}
 	
 	// diffuse temperature .5
