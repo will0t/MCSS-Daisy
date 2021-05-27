@@ -4,6 +4,15 @@ import java.util.Random;
 import java.util.concurrent.ThreadLocalRandom;
 
 public class World{
+	
+	enum Scenario {
+		MAINTAIN,
+		RAMP_UP_DOWN,
+		LOW_LUMINOSITY,
+		OUR_LUMINOSITY,
+		HIGH_LUMINOSITY,
+	}
+	
 	// singleton instance
 	private static World instance = null;
 	
@@ -21,6 +30,7 @@ public class World{
 	public static double globalTemp = 0; // set global-temperature 0
 	public static int numBlacks = 0; //num-blacks
 	public static int numWhites = 0; //num-whites
+	public static int ticks = 0;
 	
 	// map inside a map representing x,y grid for patches
 	private HashMap<Coordinate, Patch> patches = new HashMap<Coordinate, Patch>(); 
@@ -51,9 +61,6 @@ public class World{
 		this.calculatePatchesTemp(); // ask patches [calc-temperature]
 		this.setGlobalTemperature(); // set global-temperature (mean [temperature] of patches)
 		
-		System.out.println("Numblacks: " + World.numBlacks);
-		System.out.println("Numwhites: " + World.numWhites);
-		
 		recordData();
 	}
 	
@@ -74,10 +81,12 @@ public class World{
 		
 		this.calculatePatchesTemp(); // ask patches [calc-temperature]
 		this.diffuseTemperature(); // diffuse temperature .5
-		recordData();
 		
 		this.checkPatchesSurvivability(); // ask daisies [check-survivability]
 		this.setGlobalTemperature(); //set global-temperature (mean [temperature] of patches)
+		
+		recordData();
+		ticks++;
 		// TODO: scenarios not done yet
 	}
 			
@@ -142,6 +151,7 @@ public class World{
 		int row = Math.abs(Params.xStart) + Math.abs(Params.xEnd) + 1;
 		int column = Math.abs(Params.yStart) + Math.abs(Params.yEnd) + 1;
 		int totalPatches = row * column;
+		
 		// unclear how netlogo handles decimal rounding
 		int quota = Math.round(((float)colorPercent/100) * totalPatches); 
 		
@@ -280,4 +290,12 @@ public class World{
 	public void writeToFile(String fileName) {
 		writer.writeToFile(fileName);
 	}
+	
+	@Override
+	public String toString() {
+		return String.format("Tick: %d | Global Temperature: %.2f | White Population: %d | Black Population: %d | "
+				+ "Solar Luminosity: %.2f | Total Population: %d ", 
+				ticks, globalTemp, numWhites, numBlacks, solarLuminosity, numWhites + numBlacks);
+	}
+	
 }

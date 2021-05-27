@@ -29,7 +29,8 @@ public class Simulator {
 		int count = 0;
 		while(count < iteration) {
 			world.go();
-			System.out.println("Current iteration: " + Integer.toString(count));
+//			System.out.println("Current iteration: " + Integer.toString(count));
+			System.out.println(world);
 			count += 1;
 		}
 		world.writeToFile("output.csv");
