@@ -138,16 +138,9 @@ public class World{
 			}
 		}
 
-		for (int i=0; i<patchesToCheck.size(); i++) {
-			Collections.shuffle(patchesToCheck);
-			
-			// pick random patch coordinate
-			int random = ThreadLocalRandom.current().nextInt(0, patchesToCheck.size());
-			Coordinate pickedPatch = patchesToCheck.get(random);
-			
-			// check-survivability and remove
-			this.checkSurvivability(pickedPatch);
-			patchesToCheck.remove(random);
+		Collections.shuffle(patchesToCheck);
+		for(Coordinate coords : patchesToCheck) {
+			this.checkSurvivability(coords);
 		}
 			
 	}
