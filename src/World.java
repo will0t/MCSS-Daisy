@@ -7,6 +7,8 @@ public class World{
 	// singleton instance
 	private static World instance = null;
 	
+	private static CSVWriter writer = new CSVWriter();
+	
 	// interface inputs
 	public double solarLuminosity; // solar-luminosity
 	public double surfaceAlbedo; //albedo-of-surface
@@ -50,6 +52,8 @@ public class World{
 		this.seedRandomly(Daisy.Color.WHITE);
 		this.calculatePatchesTemp();
 		this.setGlobalTemperature();
+		
+		recordData();
 	}
 	
 	
@@ -67,6 +71,7 @@ public class World{
 		
 		this.calculatePatchesTemp();
 		this.diffuseTemperature();
+		recordData();
 		
 		// ask daisies [check-survivability]
 		HashMap<Coordinate,Patch> copyPatches = this.deepCopyPatches(this.patches);
@@ -224,6 +229,16 @@ public class World{
 	public void randomizeAge(Daisy daisy) { 
 		int randomAge = ThreadLocalRandom.current().nextInt(0, Params.maxAge + 1);
 		daisy.setAge(randomAge);
+	}
+	
+	private void recordData() {
+		writer.recordData(globalTemp, numWhites, numBlacks, solarLuminosity, 
+				startPercentBlack, startPercentWhite, blackAlbedo, whiteAlbedo, 
+				surfaceAlbedo);
+	}
+	
+	public void writeToFile(String fileName) {
+		writer.writeToFile(fileName);
 	}
 	
 	private void calculatePatchesTemp() {
