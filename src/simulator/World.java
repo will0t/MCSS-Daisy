@@ -1,3 +1,5 @@
+package simulator;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Random;
@@ -55,6 +57,22 @@ public class World{
 		this.blackAlbedo = ba;
 		this.whiteAlbedo = wa;
 		
+		switch (Params.scenario) {
+		case MAINTAIN:
+		case RAMP_UP_DOWN:
+			// Do nothing
+			break;	
+		case LOW_LUMINOSITY:
+			this.solarLuminosity = 0.6;
+			break;
+		case OUR_LUMINOSITY:
+			this.solarLuminosity = 1.0;
+			break;
+		case HIGH_LUMINOSITY:
+			this.solarLuminosity = 1.4;
+			break;
+		}
+		
 		this.generatePatches();
 		this.seedRandomly(Daisy.Color.BLACK); // seed-blacks-randomly + ask daisies [set age random max-age]
 		this.seedRandomly(Daisy.Color.WHITE); // seed-whites-randomly + ask daisies [set age random max-age]	
@@ -87,7 +105,17 @@ public class World{
 		
 		recordData();
 		ticks++;
-		// TODO: scenarios not done yet
+
+
+		if(Params.scenario.equals(Scenario.RAMP_UP_DOWN)) {
+			if(ticks > 200 && ticks <= 400) {
+				this.solarLuminosity += 0.005;
+			}
+			
+			if(ticks > 600 && ticks <= 850) {
+				this.solarLuminosity -= 0.0025;
+			}
+		}
 	}
 			
 	
@@ -294,7 +322,7 @@ public class World{
 	@Override
 	public String toString() {
 		return String.format("Tick: %d | Global Temperature: %.2f | White Population: %d | Black Population: %d | "
-				+ "Solar Luminosity: %.2f | Total Population: %d ", 
+				+ "Solar Luminosity: %.3f | Total Population: %d ", 
 				ticks, globalTemp, numWhites, numBlacks, solarLuminosity, numWhites + numBlacks);
 	}
 	

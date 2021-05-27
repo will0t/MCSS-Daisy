@@ -1,3 +1,5 @@
+package simulator;
+
 public class Patch {
 	private double temperature;
 	private Daisy daisy;

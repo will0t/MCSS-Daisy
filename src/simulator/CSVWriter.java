@@ -1,3 +1,5 @@
+package simulator;
+
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.PrintWriter;
@@ -12,7 +14,7 @@ public class CSVWriter {
 	public void recordData(double temperature, int whiteNum, int blackNum, 
 			double luminosity, double blackPercent, double whitePercent, 
 			double blackAlbedo, double whiteAlbedo, double surfaceAlbedo) {
-		String line = String.format("%.2f,%d,%d,%.2f,%d,%.2f,%.2f,%.2f,%.2f,%.2f", 
+		String line = String.format("%.2f,%d,%d,%.3f,%d,%.2f,%.2f,%.2f,%.2f,%.2f", 
 				temperature, whiteNum, blackNum, luminosity, whiteNum + blackNum, 
 				whitePercent, blackPercent, whiteAlbedo, blackAlbedo, surfaceAlbedo);
 		data.add(line);
