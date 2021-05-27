@@ -1,14 +1,14 @@
-
 public class Patch {
 	private double temperature;
 	private Daisy daisy;
-
-	public void sproutDaisy(Daisy.Color color) { //set-as-black and set-as-white
+	
+	//set-as-black & set-as-white
+	public void sproutDaisy(Daisy.Color color) { 
 		this.daisy = new Daisy(0, color);
 	}
 	
-	
-	public void calcTemperature(){ // calc-temperature
+	// calc-temperature
+	public void calcTemperature(){ 
 		double absorbedLuminosity = 0;
 		double localHeating = 0;
 		
@@ -19,16 +19,19 @@ public class Patch {
 		}
 		
 		if (absorbedLuminosity > 0) {
-			localHeating = 72 * Math.log(absorbedLuminosity + 80);
+			localHeating = 72 * Math.log(absorbedLuminosity) + 80;
 		} else {
 			localHeating = 80;
 		}
-		
-		temperature = temperature + localHeating / 2;
+		temperature = (temperature + localHeating) / 2;
 	}
 	
 	public Daisy getDaisy() {
 		return this.daisy;
+	}
+	
+	public void setDaisy(Daisy daisy) {
+		this.daisy = daisy;
 	}
 	
 	public void addToTemperature(double add) {
