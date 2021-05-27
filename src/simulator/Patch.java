@@ -3,6 +3,11 @@ package simulator;
 public class Patch {
 	private double temperature;
 	private Daisy daisy;
+	private Coordinate coordinate;
+	
+	public Patch(Coordinate coordinate) {
+		this.coordinate = coordinate;
+	}
 	
 	//set-as-black & set-as-white
 	public void sproutDaisy(Daisy.Color color) { 
@@ -33,6 +38,10 @@ public class Patch {
 			localHeating = 80;
 		}
 		temperature = (temperature + localHeating) / 2;
+	}
+	
+	public Coordinate getCoordinate() {
+		return this.coordinate;
 	}
 	
 	public Daisy getDaisy() {
