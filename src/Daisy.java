@@ -1,3 +1,4 @@
+import java.util.concurrent.ThreadLocalRandom;
 
 public class Daisy {
 	public enum Color{
@@ -5,9 +6,9 @@ public class Daisy {
 		BLACK
 	}
 	
-	private int age; // Age
-	private final Color color; // color of daisy
-	private final double albedo;
+	private int age; // age
+	private final Color color; // color
+	private final double albedo; // albedo
 	
 	public Daisy(int age, Color color) {
 		this.age = age;
@@ -17,6 +18,12 @@ public class Daisy {
 		} else {
 			albedo = World.getInstance().blackAlbedo;
 		}
+	}
+	
+	//ask daisies [set age random max-age]	(for a single daisy)
+	public void randomizeAge() { 
+		int randomAge = ThreadLocalRandom.current().nextInt(0, Params.maxAge + 1);
+		this.setAge(randomAge);
 	}
 	
 	public int getAge() {

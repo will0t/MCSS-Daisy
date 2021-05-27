@@ -2,6 +2,7 @@ import java.util.Scanner;
 
 public class Simulator {
 	public static void main(String[] args) {
+		// Retrieving interface inputs
 		Scanner sc = new Scanner(System.in);
 		System.out.println("Please enter the following values.");
 		System.out.print("Solar luminosity: ");
@@ -19,16 +20,18 @@ public class Simulator {
 		System.out.print("Enter max iteration: ");
 		int iteration = sc.nextInt();
 		
+		// Creating world and setup procedure
 		World world = World.getInstance(); 
-		world.setup(sl, sa, sb, sw, ba, wa); // setup procedure
+		world.setup(sl, sa, sb, sw, ba, wa);
 		
+		System.out.println("Running simulations...");
+		// go procedure
 		int count = 0;
 		while(count < iteration) {
 			world.go();
 //			System.out.println("Current iteration: " + Integer.toString(count));
 			System.out.println(world);
 			count += 1;
-			// writer.writeToCSV(world);
 		}
 		world.writeToFile("output.csv");
 	}

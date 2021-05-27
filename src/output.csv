@@ -1,0 +1,3 @@
+tick,temperature,white_daisy_num,black_daisy_num,luminosity,population,start_white_%,start_black_%,white_albedo,black_albedo,surface_albedo
+0,25.31,168,168,0.60,336,20.00,20.00,0.10,0.60,1.00
+1,25.31,168,168,0.60,336,20.00,20.00,0.10,0.60,1.00
