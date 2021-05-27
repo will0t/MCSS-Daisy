@@ -34,6 +34,7 @@ public class World{
 	public static int numBlacks = 0; //num-blacks
 	public static int numWhites = 0; //num-whites
 	public static int ticks = 0;
+	public static int run = 0;
 	
 	// map inside a map representing x,y grid for patches
 	private HashMap<Coordinate, Patch> patches = new HashMap<Coordinate, Patch>(); 
@@ -60,8 +61,10 @@ public class World{
 		
 		switch (Params.scenario) {
 		case MAINTAIN:
-		case RAMP_UP_DOWN:
 			// Do nothing
+			break;	
+		case RAMP_UP_DOWN:
+			this.solarLuminosity = 0.8;
 			break;	
 		case LOW_LUMINOSITY:
 			this.solarLuminosity = 0.6;
@@ -74,12 +77,18 @@ public class World{
 			break;
 		}
 		
+		run++;
+		ticks = 0;
+		globalTemp = 0;
+		numBlacks = 0;
+		numWhites = 0;
+		
 		this.generatePatches();
 		this.seedRandomly(Daisy.Color.BLACK); // seed-blacks-randomly + ask daisies [set age random max-age]
 		this.seedRandomly(Daisy.Color.WHITE); // seed-whites-randomly + ask daisies [set age random max-age]	
 		this.calculatePatchesTemp(); // ask patches [calc-temperature]
 		this.setGlobalTemperature(); // set global-temperature (mean [temperature] of patches)
-		
+
 		recordData();
 	}
 	
@@ -103,10 +112,6 @@ public class World{
 		
 		this.checkPatchesSurvivability(); // ask daisies [check-survivability]
 		this.setGlobalTemperature(); //set global-temperature (mean [temperature] of patches)
-		
-		recordData();
-		ticks++;
-
 
 		if(Params.scenario.equals(Scenario.RAMP_UP_DOWN)) {
 			if(ticks > 200 && ticks <= 400) {
@@ -117,6 +122,9 @@ public class World{
 				this.solarLuminosity -= 0.0025;
 			}
 		}
+		
+		ticks++;
+		recordData();
 	}
 			
 	
@@ -318,7 +326,7 @@ public class World{
 	}
 	
 	private void recordData() {
-		writer.recordData(globalTemp, numWhites, numBlacks, solarLuminosity, 
+		writer.recordData(run, ticks, globalTemp, numWhites, numBlacks, solarLuminosity, 
 				startPercentBlack, startPercentWhite, blackAlbedo, whiteAlbedo, 
 				surfaceAlbedo);
 	}
@@ -329,8 +337,8 @@ public class World{
 	
 	@Override
 	public String toString() {
-		return String.format("Tick: %d | Global Temperature: %.2f | White Population: %d | Black Population: %d | "
-				+ "Solar Luminosity: %.3f | Total Population: %d ", 
+		return String.format("Run: %d | Tick: %d | Global Temperature: %.2f | White Population: %d | "
+				+ "Black Population: %d | Solar Luminosity: %.3f | Total Population: %d ", run, 
 				ticks, globalTemp, numWhites, numBlacks, solarLuminosity, numWhites + numBlacks);
 	}
 	

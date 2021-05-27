@@ -23,7 +23,7 @@ public class Simulator {
 		double sl = 1.0;
 		
 		// Only maintain luminosity and ramp-up ramp-down scenario uses this input 
-		if(scenario <= 2) {
+		if(scenario <= 1) {
 			 sl = queryDouble(sc, "Solar luminosity (0.001-3.000): ", 0.001, 3.000);
 		}
 		
@@ -39,18 +39,24 @@ public class Simulator {
 		
 		int iteration = queryInt(sc, "Enter max iteration (>0): ", 0, Integer.MAX_VALUE);
 		
+		int runs = queryInt(sc, "Enter repetition times (>0): ", 0, Integer.MAX_VALUE);
+		
 		// Creating world and setup procedure
 		World world = World.getInstance(); 
-		world.setup(sl, sa, sb, sw, ba, wa);
 		
 		System.out.println("Running simulations...");
-		// go procedure
-		int count = 0;
-		while(count < iteration) {
-			world.go();
-			System.out.println(world);
-			count += 1;
+		
+		for(int i = 0; i < runs; i++) {
+			world.setup(sl, sa, sb, sw, ba, wa);
+			// go procedure
+			int count = 0;
+			while(count < iteration) {
+				world.go();
+				System.out.println(world);
+				count += 1;
+			}
 		}
+		
 		world.writeToFile("output.csv");
 	}
 	

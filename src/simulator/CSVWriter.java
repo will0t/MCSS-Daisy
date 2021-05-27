@@ -11,23 +11,23 @@ public class CSVWriter {
 	public CSVWriter() {
 	}
 	
-	public void recordData(double temperature, int whiteNum, int blackNum, 
-			double luminosity, double blackPercent, double whitePercent, 
-			double blackAlbedo, double whiteAlbedo, double surfaceAlbedo) {
-		String line = String.format("%.2f,%d,%d,%.3f,%d,%.2f,%.2f,%.2f,%.2f,%.2f", 
-				temperature, whiteNum, blackNum, luminosity, whiteNum + blackNum, 
+	public void recordData(int run, int tick, double temperature, 
+			int whiteNum, int blackNum, double luminosity, double blackPercent, 
+			double whitePercent, double blackAlbedo, double whiteAlbedo, double surfaceAlbedo) {
+		String line = String.format("%d,%d,%.2f,%d,%d,%.3f,%d,%.2f,%.2f,%.2f,%.2f,%.2f", 
+				run, tick, temperature, whiteNum, blackNum, luminosity, whiteNum + blackNum, 
 				whitePercent, blackPercent, whiteAlbedo, blackAlbedo, surfaceAlbedo);
 		data.add(line);
 	}
 	
 	public void writeToFile(String fileName) {
 		try(PrintWriter writer = new PrintWriter(new File(fileName))){
-			writer.println("tick,temperature,white_daisy_num,"
+			writer.println("run,tick,temperature,white_daisy_num,"
 					+ "black_daisy_num,luminosity,population,"
 					+ "start_white_%,start_black_%,white_albedo,"
 					+ "black_albedo,surface_albedo");
 			for(int i = 0; i < data.size(); i++) {
-				writer.println(i+","+data.get(i));
+				writer.println(data.get(i));
 			}
 			writer.flush();
 		} catch (FileNotFoundException e) {
