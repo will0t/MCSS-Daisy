@@ -4,6 +4,15 @@ import java.util.Random;
 import java.util.concurrent.ThreadLocalRandom;
 
 public class World{
+	
+	enum Scenario {
+		MAINTAIN,
+		RAMP_UP_DOWN,
+		LOW_LUMINOSITY,
+		OUR_LUMINOSITY,
+		HIGH_LUMINOSITY,
+	}
+	
 	// singleton instance
 	private static World instance = null;
 	
@@ -21,6 +30,7 @@ public class World{
 	public static double globalTemp = 0; // global-temperature
 	public static int numBlacks = 0; //num-blacks
 	public static int numWhites = 0; //num-whites
+	public static int ticks = 0;
 	
 	// map inside a map representing x,y grid for patches
 	private HashMap<Coordinate, Patch> patches 
@@ -52,6 +62,7 @@ public class World{
 		this.seedRandomly(Daisy.Color.WHITE);
 		this.calculatePatchesTemp();
 		this.setGlobalTemperature();
+		this.updateDaisyCounts();
 		
 		recordData();
 	}
@@ -71,12 +82,15 @@ public class World{
 		
 		this.calculatePatchesTemp();
 		this.diffuseTemperature();
-		recordData();
-		
+
 		// ask daisies [check-survivability]
-		this.checkPatchesSurvivability()
+		this.checkPatchesSurvivability();
 		
 		this.setGlobalTemperature();
+		this.updateDaisyCounts();
+		// Record data and increment ticks
+		recordData();
+		ticks++;
 		// TODO: scenarios not done yet
 	}
 	
@@ -213,7 +227,7 @@ public class World{
 		int row = Math.abs(Params.xStart) + Math.abs(Params.xEnd) + 1;
 		int column = Math.abs(Params.yStart) + Math.abs(Params.yEnd) + 1;
 		int totalPatches = row * column;
-		int quota = Math.round(((float)colorPercent/100) * totalPatches); //unclear how netlogo handles decimals
+		int quota = (int) (colorPercent / 100 * totalPatches); //unclear how netlogo handles decimals
 		
 		int count = 0;
 		while (count < quota) {
@@ -267,4 +281,37 @@ public class World{
 		}
 		World.globalTemp = total / count;
 	}
+	
+	private void updateDaisyCounts() { 
+		int black = 0;
+		int white = 0;
+		for (int x=Params.xStart; x<=Params.xEnd; x++) {
+			for (int y=Params.yStart; y<=Params.yEnd; y++) {
+				Coordinate coordinate = new Coordinate(x,y);
+				
+				Patch patch = patches.get(coordinate);
+				
+				if(!patch.hasDaisy()) continue;
+				
+				switch(patch.getDaisy().getColor()) {
+					case BLACK:
+						black++;
+						break;
+					case WHITE:
+						white++;
+						break;
+				}
+			}
+		}
+		World.numBlacks = black;
+		World.numWhites = white;
+	}
+
+	@Override
+	public String toString() {
+		return String.format("Tick: %d | Global Temperature: %.2f | White Population: %d | Black Population: %d | "
+				+ "Solar Luminosity: %.2f | Total Population: %d ", 
+				ticks, globalTemp, numWhites, numBlacks, solarLuminosity, numWhites + numBlacks);
+	}
+	
 }
