@@ -27,9 +27,11 @@ public class Patch {
 		double localHeating = 0;
 		
 		if (!this.hasDaisy()) {
-			absorbedLuminosity = ((1 - World.getInstance().surfaceAlbedo) * World.getInstance().solarLuminosity);
+			absorbedLuminosity = ((1 - World.getInstance().surfaceAlbedo) 
+					* World.getInstance().solarLuminosity);
 		} else {
-			absorbedLuminosity = ((1 - daisy.getAlbedo()) * World.getInstance().solarLuminosity);
+			absorbedLuminosity = ((1 - daisy.getAlbedo()) 
+					* World.getInstance().solarLuminosity);
 		}
 		
 		if (absorbedLuminosity > 0) {

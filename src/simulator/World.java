@@ -99,13 +99,7 @@ public class World{
 		numRabbits = 0;
 
 		this.generatePatches();
-		// generating rabbits that roam the map
 		this.generateRabbits();
-
-		//for (Rabbit rabbit: rabbits) {
-		//	System.out.println(rabbit + " at " + rabbit.getCoordinate().getX() + "," + rabbit.getCoordinate().getY());
-		//}
-		//System.out.println("Total rabbits: " + rabbits.size());
 
 		this.seedRandomly(Daisy.Color.BLACK); // seed-blacks-randomly + ask daisies [set age random max-age]
 		this.seedRandomly(Daisy.Color.WHITE); // seed-whites-randomly + ask daisies [set age random max-age]
@@ -119,33 +113,6 @@ public class World{
 	// go procedure
 	public void go() {
 		
-		// DEBUG USE: To check if there are more than one rabbit in a patch
-		/*
-		List<Coordinate> list = rabbits.stream().map((r)->r.getCoordinate())
-				.collect(Collectors.toList());
-		Set<Coordinate> set = new HashSet<Coordinate>(list);
-
-		if(set.size() < list.size()){
-		    System.err.println("DUPLICATE BUNNIES DETECTED");
-		}
-		*/
-		
-		// DEBUG USE: To sanity check patch temperature
-		/*
-		for (int x=Params.xStart; x<=Params.xEnd; x++) {
-			for (int y=Params.yStart; y<=Params.yEnd; y++) {
-				Coordinate coordinate = new Coordinate(x,y);
-				Patch patch = patches.get(coordinate);
-				System.out.println("Temperature: " + patch.getTemperature());
-			}
-		}
-		System.out.println("Global temperature: " + World.globalTemp);
-		*/
-
-//		System.out.println("No. of black daisies:" + World.numBlacks);
-//		System.out.println("No. of white daisies:" + World.numWhites);
-//		System.out.println("No. of rabbits:" + World.numRabbits);
-
 		// rabbits taking one action per tick
 		this.rabbitsAct();
 		this.calculatePatchesTemp(); // ask patches [calc-temperature]
@@ -199,7 +166,6 @@ public class World{
 
 	}
 
-	// diffuse temperature .5
 	private void diffuseTemperature() {
 		// make a deep copy of the patches hashmap
 		HashMap<Coordinate,Patch> copyPatches = this.deepCopyPatches(this.patches);
@@ -228,7 +194,6 @@ public class World{
 		}
 	}
 
-	// seed-black-randomly & seed-white-randomly + ask daisies [set age random max-age]
 	public void seedRandomly(Daisy.Color color){
 		int colorPercent;
 		if (color == Daisy.Color.BLACK) {
@@ -359,8 +324,8 @@ public class World{
 			float randomFloat = rand.nextFloat();
 			
 			// rabbits reproduce when they have excess energy and by chance
-			if (randomFloat <= Rabbit.REPRODUCE_CHANCE && rabbit.getEnergyLevel() >= Rabbit.REPRODUCE_REQUIREMENT 
-					&& validCoords.size() > 0) {
+			if (randomFloat <= Rabbit.REPRODUCE_CHANCE && rabbit.getEnergyLevel() 
+					>= Rabbit.REPRODUCE_REQUIREMENT	&& validCoords.size() > 0) {
 				newbornRabbits.add(rabbit.reproduce(validCoords.get(0)));
 			// rabbits eat when there's daisy
 			} else if (foodPatches.size() > 0 && rabbit.getEnergyLevel() < Rabbit.MAX_ENERGY){
@@ -419,7 +384,8 @@ public class World{
 
 		daisy.setAge(daisy.getAge()+1);
 		if (daisy.getAge() < Params.maxAge) {
-			seedThreshold = ((0.1457 * patch.getTemperature()) - (0.0032 * (Math.pow(patch.getTemperature(), 2))) - 0.6443);
+			seedThreshold = ((0.1457 * patch.getTemperature()) - (0.0032 * 
+					(Math.pow(patch.getTemperature(), 2))) - 0.6443);
 			float randomFloat = rand.nextFloat();
 			if (randomFloat < seedThreshold) {
 				// making an array list of neighbours without daisy
@@ -430,12 +396,6 @@ public class World{
 						patchNeighbours.remove(i);
 					}
 				}
-
-				// DEBUG USE: checking if neighbours in list have daisy
-				/* for (int i=0; i<patchNeighbours.size(); i++) {
-				//	System.out.println("Has daisy: " + patchNeighbours.get(i).hasDaisy());
-				}
-				*/
 
 				// randomly select a random neighbour without daisy
 				if (patchNeighbours.size() > 0) {
