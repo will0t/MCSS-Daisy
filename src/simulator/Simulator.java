@@ -22,7 +22,7 @@ public class Simulator {
 
 		double sl = 1.0;
 
-		// Only maintain luminosity and ramp-up ramp-down scenario uses this input
+		// Only maintain luminosity scenario uses this input
 		if(scenario <= 1) {
 			 sl = queryDouble(sc, "Solar luminosity (0.001-3.000): ", 0.001, 3.000);
 		}
@@ -45,7 +45,6 @@ public class Simulator {
 
 		// Creating world and setup procedure
 		World world = World.getInstance();
-		world.setup(sl, sa, sb, sw, sr, ba, wa);
 
 		System.out.println("Running simulations...");
 

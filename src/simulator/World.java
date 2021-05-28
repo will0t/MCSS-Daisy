@@ -3,8 +3,13 @@ package simulator;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
 import java.util.Random;
+import java.util.Set;
 import java.util.concurrent.ThreadLocalRandom;
+import java.util.stream.Collectors;
 
 public class World{
 
@@ -87,6 +92,7 @@ public class World{
 		globalTemp = 0;
 		numBlacks = 0;
 		numWhites = 0;
+		numRabbits = 0;
 
 		this.generatePatches();
 		// generating rabbits that roam the map
@@ -108,6 +114,18 @@ public class World{
 
 	// go procedure
 	public void go() {
+		
+		// DEBUG USE: To check if there are more than one rabbit in a patch
+		/*
+		List<Coordinate> list = rabbits.stream().map((r)->r.getCoordinate())
+				.collect(Collectors.toList());
+		Set<Coordinate> set = new HashSet<Coordinate>(list);
+
+		if(set.size() < list.size()){
+		    System.err.println("DUPLICATE BUNNIES DETECTED");
+		}
+		*/
+		
 		// DEBUG USE: To sanity check patch temperature
 		/*
 		for (int x=Params.xStart; x<=Params.xEnd; x++) {
@@ -120,9 +138,9 @@ public class World{
 		System.out.println("Global temperature: " + World.globalTemp);
 		*/
 
-		System.out.println("No. of black daisies:" + World.numBlacks);
-		System.out.println("No. of white daisies:" + World.numWhites);
-		System.out.println("No. of rabbits:" + World.numRabbits);
+//		System.out.println("No. of black daisies:" + World.numBlacks);
+//		System.out.println("No. of white daisies:" + World.numWhites);
+//		System.out.println("No. of rabbits:" + World.numRabbits);
 
 		// rabbits taking one action per tick
 		this.rabbitsAct();
@@ -153,18 +171,11 @@ public class World{
 
 	// ask daisies [check-survivability]
 	private void checkPatchesSurvivability() {
-		ArrayList<Coordinate> patchesToCheck = new ArrayList<Coordinate>();
+		ArrayList<Coordinate> patchesToCheck = getAllCoordinates();
 		HashMap<Coordinate,Patch> copyPatches = this.deepCopyPatches(this.patches);
-		for (int x=Params.xStart; x<=Params.xEnd; x++) {
-			for (int y=Params.yStart; y<=Params.yEnd; y++) {
-				Coordinate coordinate = new Coordinate(x,y);
-				// only check survivability when patch has daisy
-				if (copyPatches.get(coordinate).hasDaisy()) {
-					patchesToCheck.add(coordinate);
-				}
-			}
-		}
-
+		
+		patchesToCheck.removeIf((c)->!copyPatches.get(c).hasDaisy());
+		
 		Collections.shuffle(patchesToCheck);
 		for(Coordinate coords : patchesToCheck) {
 			this.checkSurvivability(coords);
@@ -276,12 +287,15 @@ public class World{
 	// creating rabbits based on start percent rabbit
 	private void generateRabbits() {
 		int quota = Math.round(((float)startPercentRabbit/100) * this.totalPatches());
+		rabbits.clear();
 
+		ArrayList<Coordinate> allPatches = getAllCoordinates();
+		
+		Collections.shuffle(allPatches);
+		
 		int count = 0;
 		while (count < quota) {
-			int randomX = ThreadLocalRandom.current().nextInt(Params.xStart, Params.xEnd + 1);
-			int randomY = ThreadLocalRandom.current().nextInt(Params.yStart, Params.yEnd + 1);
-			this.createRabbit(new Coordinate(randomX, randomY));
+			this.createRabbit(allPatches.remove(0));
 			count += 1;
 		}
 	}
@@ -289,33 +303,51 @@ public class World{
 	// each rabbit will take one action: move, eat or reproduce
 	private void rabbitsAct() {
 		ArrayList<Rabbit> newbornRabbits = new ArrayList<Rabbit>();
-		for (int i=rabbits.size()-1; i>=0; i--) {
-			Rabbit rabbit = rabbits.get(i);
+		
+		Collections.shuffle(rabbits);
+		
+		Iterator<Rabbit> it = rabbits.iterator();
+		
+		while(it.hasNext()) {
+			Rabbit rabbit = it.next();
 			Patch rabbitPatch = patches.get(rabbit.getCoordinate());
+			
+			ArrayList<Coordinate> validCoords = rabbit.getCoordinate().generateNeighbours();
+			
+			// Convert all rabbits into a list of coordinates
+			List<Coordinate> rabbitsCoords = rabbits.stream().map((r)->r.getCoordinate())
+					.collect(Collectors.toList());
+
+			// Check for new born rabbits as well
+			rabbitsCoords.addAll(newbornRabbits.stream().map((r)->r.getCoordinate())
+					.collect(Collectors.toList()));
+			
+			// Get neighbor coordinates with no rabbit
+			validCoords.removeIf((c)->rabbitsCoords.contains(c));
+			Collections.shuffle(validCoords);
+			
 			// rabbits reproduce when they have excess energy
-			if (rabbit.getEnergyLevel() >= Rabbit.REPRODUCE_REQUIREMENT) {
-				newbornRabbits.add(rabbit.reproduce());
+			if (rabbit.getEnergyLevel() >= Rabbit.REPRODUCE_REQUIREMENT && validCoords.size() > 0) {
+				// Reproduction can only happen if there are neighboring patches without rabbit
+				newbornRabbits.add(rabbit.reproduce(validCoords.get(0)));
 			// rabbits eat when there's daisy
 			} else if (rabbitPatch.hasDaisy()){
 				//System.out.println("Rabbit ate daisy.");
 				rabbit.eat(rabbitPatch);
 			// rabbits move in search of daisy
-			} else {
-				rabbit.move();
+			} else if (validCoords.size() > 0){
+				rabbit.move(validCoords.get(0));		
 			}
 
 			// rabbits die after running out of energy
 			if (rabbit.getEnergyLevel() == 0) {
-				System.out.println("Rabbit dies.");
-				rabbits.remove(i);
+//				System.out.println("Rabbit dies.");
 				World.numRabbits -= 1;
+				it.remove();
 			}
 		}
-
-		for (Rabbit newborn: newbornRabbits) {
-			//System.out.println("Adding newborn baby.");
-			this.rabbits.add(newborn);
-		}
+		
+		this.rabbits.addAll(newbornRabbits);
 	}
 
 	// deep copying patches
@@ -394,9 +426,21 @@ public class World{
 		int column = Math.abs(Params.yStart) + Math.abs(Params.yEnd) + 1;
 		return row * column;
 	}
+	
+	private ArrayList<Coordinate> getAllCoordinates(){
+		ArrayList<Coordinate> allPatches = new ArrayList<Coordinate>();
+		
+		for (int x=Params.xStart; x<=Params.xEnd; x++) {
+			for (int y=Params.yStart; y<=Params.yEnd; y++) {
+				allPatches.add(new Coordinate(x,y));
+			}
+		}
+
+		return allPatches;
+	}
 
 	private void recordData() {
-		writer.recordData(run, ticks, globalTemp, numWhites, numBlacks, solarLuminosity,
+		writer.recordData(run, ticks, globalTemp, numWhites, numBlacks, numRabbits, solarLuminosity,
 				startPercentBlack, startPercentWhite, blackAlbedo, whiteAlbedo,
 				surfaceAlbedo);
 	}
@@ -407,9 +451,10 @@ public class World{
 
 	@Override
 	public String toString() {
-		return String.format("Run: %d | Tick: %d | Global Temperature: %.2f | White Population: %d | "
-				+ "Black Population: %d | Solar Luminosity: %.3f | Total Population: %d ", run,
-				ticks, globalTemp, numWhites, numBlacks, solarLuminosity, numWhites + numBlacks);
+		return String.format("Run: %d | Tick: %d | Global Temperature: %.2f | White: %d | "
+				+ "Black: %d | Rabbit: %d | Luminosity: %.3f | Total Population: %d ", 
+				run, ticks, globalTemp, numWhites, numBlacks, numRabbits, 
+				solarLuminosity, numWhites + numBlacks + numRabbits);
 	}
 
 }

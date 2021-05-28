@@ -30,11 +30,9 @@ public class Rabbit {
 	}
 	
 	// moving randomly on grid
-	public void move() {
-		ArrayList<Coordinate> neighbourCoordinates = this.coordinate.generateNeighbours();
+	public void move(Coordinate coords) {
 		// randomly choose neighbour coordinate as new coordinate
-		Collections.shuffle(neighbourCoordinates);
-		this.coordinate = neighbourCoordinates.remove(0);
+		this.coordinate = coords;
 		this.energyLevel -= Rabbit.MOVE_ENERGY;
 		this.age += 1;
 	}
@@ -47,10 +45,10 @@ public class Rabbit {
 		this.age += 1;
 	}
 	
-	public Rabbit reproduce() {
+	public Rabbit reproduce(Coordinate coords) {
 		this.energyLevel -= Rabbit.REPRODUCE_ENERGY;
 		this.age += 1;
-		return new Rabbit(this.coordinate);
+		return new Rabbit(coords);
 	}
 	
 	public int getEnergyLevel() {
