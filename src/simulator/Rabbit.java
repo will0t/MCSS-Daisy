@@ -1,30 +1,22 @@
 package simulator;
 
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.concurrent.ThreadLocalRandom;
 
 public class Rabbit {
 	private Coordinate coordinate;
 	private int energyLevel;
 	private int age;
-	public static float REPRODUCE_CHANCE = 0.03f;
+	public static int REPRODUCE_ENERGY = 5;
+	public static int REPRODUCE_REQUIREMENT = 7;
+	public static float REPRODUCE_CHANCE = 0.7f;
+	public static int MAX_ENERGY = 10;
 	public static int MOVE_ENERGY = 1;
 	public static int EAT_ENERGY = 1;
 	
-	public Rabbit() {
-		int randomX = ThreadLocalRandom.current().nextInt(Params.xStart, Params.xEnd + 1);
-		int randomY = ThreadLocalRandom.current().nextInt(Params.yStart, Params.yEnd + 1);
-		this.coordinate = new Coordinate(randomX, randomY);
-		this.energyLevel = 3;
-		this.age = 1;
-		World.numRabbits += 1;
-	}
-	
-	public Rabbit(Coordinate coordinate) {
+	public Rabbit(Coordinate coordinate, int age) {
 		this.coordinate = coordinate;
 		this.energyLevel = 3;
-		this.age = 1;
+		this.age = age;
 		World.numRabbits += 1;
 	}
 	
@@ -45,9 +37,10 @@ public class Rabbit {
 	}
 	
 	public Rabbit reproduce(Coordinate coords) {
-		this.energyLevel /= 2;
+		this.energyLevel -= REPRODUCE_ENERGY;
 		this.age += 1;
-		return new Rabbit(coords);
+		int randomAge = ThreadLocalRandom.current().nextInt(0, Params.maxRabbitAge + 1);
+		return new Rabbit(coords, randomAge);
 	}
 	
 	public int getEnergyLevel() {

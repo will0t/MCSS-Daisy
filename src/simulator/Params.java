@@ -13,4 +13,5 @@ public class Params {
 	
 	// storing constants
 	public final static int maxAge = 25; //max-age
+	public final static int maxRabbitAge = 15;
 }

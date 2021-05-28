@@ -65,7 +65,7 @@ public class Patch {
 	}
 	
 	public void addToTemperature(double add) {
-		this.temperature = this.temperature + add;
+		this.temperature += add;
 	}
 	
 	public double getTemperature() {
@@ -77,9 +77,6 @@ public class Patch {
 	}
 	
 	public boolean hasDaisy() {
-		if (daisy == null) {
-			return false;
-		}
-		return true; 
+		return daisy != null;
 	}
 }

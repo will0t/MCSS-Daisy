@@ -26,6 +26,8 @@ public class World{
 
 	private static CSVWriter writer = new CSVWriter();
 
+	private static Random rand = new Random();
+	
 	// interface inputs
 	public double solarLuminosity; // solar-luminosity
 	public double surfaceAlbedo; //albedo-of-surface
@@ -199,7 +201,7 @@ public class World{
 				double amountToDiffuse = copyPatch.getTemperature() * 0.5 / 8;
 
 				// diffuse it in the actual patches
-				ArrayList<Coordinate> neighbours = sourceCoordinate.generateNeighbours();
+				ArrayList<Coordinate> neighbours = sourceCoordinate.generateNeighbours(1);
 				for (int i=0; i<neighbours.size(); i++) {
 					Coordinate neighbourCoordinate = neighbours.get(i);
 					Patch neighbourPatch = patches.get(neighbourCoordinate);
@@ -280,7 +282,8 @@ public class World{
 
 	// creating a single rabbit at a coordinate
 	public void createRabbit(Coordinate coordinate) {
-		Rabbit rabbit = new Rabbit(coordinate);
+		int randomAge = ThreadLocalRandom.current().nextInt(0, Params.maxRabbitAge + 1);
+		Rabbit rabbit = new Rabbit(coordinate, randomAge);
 		this.rabbits.add(rabbit);
 	}
 
@@ -310,9 +313,21 @@ public class World{
 		
 		while(it.hasNext()) {
 			Rabbit rabbit = it.next();
-			Patch rabbitPatch = patches.get(rabbit.getCoordinate());
 			
-			ArrayList<Coordinate> validCoords = rabbit.getCoordinate().generateNeighbours();
+			Coordinate currCoord = rabbit.getCoordinate();
+			
+			Patch rabbitPatch = patches.get(currCoord);
+			
+			// Get nearby patches with daisy
+			List<Patch> foodPatches = currCoord.generateNeighbours(1).stream()
+					.map((c)->patches.get(c)).filter((p)->p.hasDaisy())
+					.collect(Collectors.toList());
+			
+			// Add the current patch if it has daisy too
+			if(rabbitPatch.hasDaisy())
+				foodPatches.add(rabbitPatch);
+			
+			ArrayList<Coordinate> validCoords = currCoord.generateNeighbours(2);
 			
 			// Convert all rabbits into a list of coordinates
 			List<Coordinate> rabbitsCoords = rabbits.stream().map((r)->r.getCoordinate())
@@ -325,23 +340,28 @@ public class World{
 			// Get neighbor coordinates with no rabbit
 			validCoords.removeIf((c)->rabbitsCoords.contains(c));
 			Collections.shuffle(validCoords);
-			
+					
 			Random rand = new Random();
 			float randomFloat = rand.nextFloat();
-			// rabbits reproduce by chance
-			if (randomFloat <= Rabbit.REPRODUCE_CHANCE && validCoords.size() > 0) {
-				// Reproduction can only happen if there are neighboring patches without rabbit
+			
+			// rabbits reproduce when they have excess energy and by chance
+			if (randomFloat <= Rabbit.REPRODUCE_CHANCE && rabbit.getEnergyLevel() >= Rabbit.REPRODUCE_REQUIREMENT 
+					&& validCoords.size() > 0) {
 				newbornRabbits.add(rabbit.reproduce(validCoords.get(0)));
 			// rabbits eat when there's daisy
-			} else if (rabbitPatch.hasDaisy()){
-				rabbit.eat(rabbitPatch);
+			} else if (foodPatches.size() > 0 && rabbit.getEnergyLevel() < Rabbit.MAX_ENERGY){
+				//System.out.println("Rabbit ate daisy.");
+				Collections.shuffle(foodPatches);
+				rabbit.eat(foodPatches.get(0));
 			// rabbits move in search of daisy
-			} else if (validCoords.size() > 0){
-				rabbit.move(validCoords.get(0));		
+			} else {
+				// Always get called to make sure rabbits will use energy even if not 'moving'
+				rabbit.move(validCoords.size() > 0 ? validCoords.get(0) : currCoord);
 			}
-
+			
 			// rabbits die after running out of energy
-			if (rabbit.getEnergyLevel() <= 0 || rabbit.getAge() >= 50) {
+			if (rabbit.getEnergyLevel() == 0 || rabbit.getAge() > Params.maxRabbitAge) {
+//							System.out.println("Rabbit dies.");
 				World.numRabbits -= 1;
 				it.remove();
 			}
@@ -368,7 +388,7 @@ public class World{
 
 	// get patch neighbours of a coordinate
 	private ArrayList<Patch> getPatchNeighbours(Coordinate coordinate){
-		ArrayList<Coordinate> neighbourCoordinates = coordinate.generateNeighbours();
+		ArrayList<Coordinate> neighbourCoordinates = coordinate.generateNeighbours(1);
 		ArrayList<Patch> patchNeighbours = new ArrayList<Patch>();
 		for (int i=0; i<neighbourCoordinates.size(); i++) {
 			Patch patchNeighbour = patches.get(neighbourCoordinates.get(i));
@@ -386,7 +406,6 @@ public class World{
 		daisy.setAge(daisy.getAge()+1);
 		if (daisy.getAge() < Params.maxAge) {
 			seedThreshold = ((0.1457 * patch.getTemperature()) - (0.0032 * (Math.pow(patch.getTemperature(), 2))) - 0.6443);
-			Random rand = new Random();
 			float randomFloat = rand.nextFloat();
 			if (randomFloat < seedThreshold) {
 				// making an array list of neighbours without daisy

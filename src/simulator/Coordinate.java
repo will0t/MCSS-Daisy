@@ -57,10 +57,10 @@ public class Coordinate {
 			coords.ycor += 29;
 	}
 	
-	public ArrayList<Coordinate> generateNeighbours(){
+	public ArrayList<Coordinate> generateNeighbours(int radius){
 		ArrayList<Coordinate> neighbours = new ArrayList<Coordinate>();
-		for (int x=-1; x<=1; x++) {
-			for (int y=-1; y<=1; y++) {
+		for (int x=-radius; x<=radius; x++) {
+			for (int y=-radius; y<=radius; y++) {
 				// Skip the original coordinate
 				if(x == 0 && y == 0) continue;
 				
