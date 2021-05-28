@@ -3,11 +3,9 @@ package simulator;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Random;
-import java.util.Set;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.stream.Collectors;
 
@@ -19,6 +17,7 @@ public class World{
 		LOW_LUMINOSITY,
 		OUR_LUMINOSITY,
 		HIGH_LUMINOSITY,
+		SOLAR_FLARE,
 	}
 
 	// singleton instance
@@ -74,6 +73,9 @@ public class World{
 		switch (Params.scenario) {
 		case MAINTAIN:
 			// Do nothing
+			break;
+		case SOLAR_FLARE:
+			this.solarLuminosity = 0.9;
 			break;
 		case RAMP_UP_DOWN:
 			this.solarLuminosity = 0.8;
@@ -159,6 +161,18 @@ public class World{
 
 			if(ticks > 600 && ticks <= 850) {
 				this.solarLuminosity -= 0.0025;
+			}
+		}
+		
+		if(Params.scenario.equals(Scenario.SOLAR_FLARE)) {
+			int adjustedTicks = ticks % 1500;
+			
+			if(adjustedTicks > 0 && adjustedTicks <= 100) {
+				this.solarLuminosity += 0.003;
+			}
+
+			if(adjustedTicks > 750 && adjustedTicks <= 850) {
+				this.solarLuminosity -= 0.003;
 			}
 		}
 
@@ -327,7 +341,7 @@ public class World{
 			if(rabbitPatch.hasDaisy())
 				foodPatches.add(rabbitPatch);
 			
-			ArrayList<Coordinate> validCoords = currCoord.generateNeighbours(2);
+			ArrayList<Coordinate> validCoords = currCoord.generateNeighbours(1);
 			
 			// Convert all rabbits into a list of coordinates
 			List<Coordinate> rabbitsCoords = rabbits.stream().map((r)->r.getCoordinate())
@@ -360,7 +374,7 @@ public class World{
 			}
 			
 			// rabbits die after running out of energy
-			if (rabbit.getEnergyLevel() == 0 || rabbit.getAge() > Params.maxRabbitAge) {
+			if (rabbit.getEnergyLevel() <= 0 || rabbit.getAge() > Params.maxRabbitAge) {
 //							System.out.println("Rabbit dies.");
 				World.numRabbits -= 1;
 				it.remove();

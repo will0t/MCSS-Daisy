@@ -15,8 +15,9 @@ public class Simulator {
 		System.out.println("3. Low Luminosity:");
 		System.out.println("4. Our Luminosity:");
 		System.out.println("5. High Luminosity");
+		System.out.println("6. Solar Flare");
 
-		int scenario = queryInt(sc, "Scenario (1-5): ", 1, 5);
+		int scenario = queryInt(sc, "Scenario (1-6): ", 1, 6);
 		Params.scenario = Scenario.values()[scenario-1];
 		System.out.println(Params.scenario.toString() + " selected");
 
