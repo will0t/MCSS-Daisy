@@ -135,11 +135,11 @@ public class World{
 			int adjustedTicks = ticks % 1500;
 			
 			if(adjustedTicks > 0 && adjustedTicks <= 100) {
-				this.solarLuminosity += 0.003;
+				this.solarLuminosity += 0.0025;
 			}
 
 			if(adjustedTicks > 750 && adjustedTicks <= 850) {
-				this.solarLuminosity -= 0.003;
+				this.solarLuminosity -= 0.0025;
 			}
 		}
 
