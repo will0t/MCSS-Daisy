@@ -326,13 +326,14 @@ public class World{
 			validCoords.removeIf((c)->rabbitsCoords.contains(c));
 			Collections.shuffle(validCoords);
 			
-			// rabbits reproduce when they have excess energy
-			if (rabbit.getEnergyLevel() >= Rabbit.REPRODUCE_REQUIREMENT && validCoords.size() > 0) {
+			Random rand = new Random();
+			float randomFloat = rand.nextFloat();
+			// rabbits reproduce by chance
+			if (randomFloat <= Rabbit.REPRODUCE_CHANCE && validCoords.size() > 0) {
 				// Reproduction can only happen if there are neighboring patches without rabbit
 				newbornRabbits.add(rabbit.reproduce(validCoords.get(0)));
 			// rabbits eat when there's daisy
 			} else if (rabbitPatch.hasDaisy()){
-				//System.out.println("Rabbit ate daisy.");
 				rabbit.eat(rabbitPatch);
 			// rabbits move in search of daisy
 			} else if (validCoords.size() > 0){
@@ -340,8 +341,7 @@ public class World{
 			}
 
 			// rabbits die after running out of energy
-			if (rabbit.getEnergyLevel() == 0) {
-//				System.out.println("Rabbit dies.");
+			if (rabbit.getEnergyLevel() <= 0 || rabbit.getAge() >= 50) {
 				World.numRabbits -= 1;
 				it.remove();
 			}

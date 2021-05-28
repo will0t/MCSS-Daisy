@@ -8,8 +8,7 @@ public class Rabbit {
 	private Coordinate coordinate;
 	private int energyLevel;
 	private int age;
-	public static int REPRODUCE_ENERGY = 50;
-	public static int REPRODUCE_REQUIREMENT = 100;
+	public static float REPRODUCE_CHANCE = 0.03f;
 	public static int MOVE_ENERGY = 1;
 	public static int EAT_ENERGY = 1;
 	
@@ -39,14 +38,14 @@ public class Rabbit {
 	
 	// eating daisy from patch
 	public void eat(Patch patchWithDaisy) {
-		//System.out.println("Daisy color eaten: " + patchWithDaisy.getDaisy().getColor());
 		patchWithDaisy.daisyDies();
+		
 		this.energyLevel += Rabbit.EAT_ENERGY;
 		this.age += 1;
 	}
 	
 	public Rabbit reproduce(Coordinate coords) {
-		this.energyLevel -= Rabbit.REPRODUCE_ENERGY;
+		this.energyLevel /= 2;
 		this.age += 1;
 		return new Rabbit(coords);
 	}
