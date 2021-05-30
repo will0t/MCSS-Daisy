@@ -2,15 +2,19 @@ package simulator;
 
 import java.util.concurrent.ThreadLocalRandom;
 
+/*
+ * Represents the daisies in the DaisyWorld
+ */
 public class Daisy {
+	// available color of daisies
 	public enum Color{
 		WHITE,
 		BLACK
 	}
 	
-	private int age; // age
-	private final Color color; // color
-	private final double albedo; // albedo
+	private int age;
+	private final Color color;
+	private final double albedo;
 	
 	public Daisy(int age, Color color) {
 		this.age = age;

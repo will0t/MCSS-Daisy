@@ -2,10 +2,15 @@ package simulator;
 
 import java.util.concurrent.ThreadLocalRandom;
 
+/*
+ * Represents the patches in DaisyWorld which may contain daisies
+ */
 public class Rabbit {
 	private Coordinate coordinate;
 	private int energyLevel;
 	private int age;
+	
+	// parameters for energy values
 	public static int REPRODUCE_ENERGY = 5;
 	public static int REPRODUCE_REQUIREMENT = 7;
 	public static float REPRODUCE_CHANCE = 0.7f;
@@ -36,6 +41,7 @@ public class Rabbit {
 		this.age += 1;
 	}
 	
+	// reproducing a rabbit in a neighbour patch
 	public Rabbit reproduce(Coordinate coords) {
 		this.energyLevel -= REPRODUCE_ENERGY;
 		this.age += 1;

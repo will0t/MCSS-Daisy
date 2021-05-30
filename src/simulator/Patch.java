@@ -1,5 +1,8 @@
 package simulator;
 
+/*
+ * Represents the patches in DaisyWorld which may contain daisies
+ */
 public class Patch {
 	private double temperature;
 	private Daisy daisy;
@@ -13,11 +16,9 @@ public class Patch {
 	public void sproutDaisy(Daisy.Color color) { 
 		this.daisy = new Daisy(0, color);
 		if (color == Daisy.Color.BLACK) {
-			//System.out.println("Adding to numBlacks.");
 			World.numBlacks += 1;
 		} else {
 			World.numWhites += 1;
-			//System.out.println("Adding to numWhites.");
 		}
 	}
 	
@@ -26,6 +27,7 @@ public class Patch {
 		double absorbedLuminosity = 0;
 		double localHeating = 0;
 		
+		// formulas are all taken from Netlogo
 		if (!this.hasDaisy()) {
 			absorbedLuminosity = ((1 - World.getInstance().surfaceAlbedo) 
 					* World.getInstance().solarLuminosity);
@@ -54,18 +56,18 @@ public class Patch {
 		this.daisy = daisy;
 	}
 	
+	// kill of daisy in patch
 	public void daisyDies() {
 		if (this.daisy.getColor() == Daisy.Color.BLACK) {
-			//System.out.println("Deducting from numBlacks.");
 			World.numBlacks -= 1;
 		} else {
 			World.numWhites -= 1;
-			//System.out.println("Deducting from numWhites.");
 		}
 		this.daisy = null;
 		
 	}
 	
+	// changing the temperature of patch
 	public void addToTemperature(double add) {
 		this.temperature += add;
 	}

@@ -2,6 +2,9 @@ package simulator;
 
 import java.util.ArrayList;
 
+/*
+ * Represents the coordinates in DaisyWorld
+ */
 public class Coordinate {
 	private int xcor;
 	private int ycor;
@@ -11,6 +14,8 @@ public class Coordinate {
 		this.ycor = ycor;
 	}
 	
+	// overriding equals and hashCode to make HashMap recognize different coordinate
+	// objects with same values as equals
 	@Override
     public boolean equals(Object o) {
         if (this == o) return true; // same object return true
@@ -21,8 +26,7 @@ public class Coordinate {
 
     @Override
     public int hashCode() {
-        int result = xcor;
-        result = 31 * result + ycor;
+        int result = 29 * xcor + ycor;
         return result;
     }
 	
@@ -34,6 +38,7 @@ public class Coordinate {
 		return this.ycor;
 	}
 	
+	// check if coordinate is out of map
 	public boolean outOfGrid() {
 		if (this.xcor < Params.xStart || this.xcor > Params.xEnd
 				|| this.ycor < Params.yStart || this.ycor > Params.yEnd) {
@@ -57,6 +62,7 @@ public class Coordinate {
 			coords.ycor += 29;
 	}
 	
+	// generate neighbours of this coordindate
 	public ArrayList<Coordinate> generateNeighbours(int radius){
 		ArrayList<Coordinate> neighbours = new ArrayList<Coordinate>();
 		for (int x=-radius; x<=radius; x++) {

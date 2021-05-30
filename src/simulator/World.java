@@ -9,8 +9,12 @@ import java.util.Random;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.stream.Collectors;
 
+/*
+ * Represents the DaisyWorld with environmental variables and inhabitants
+ * Also controls the behaviour of the world such as diffusing temperature
+ */
 public class World{
-
+	// scenarios in Netlogo
 	enum Scenario {
 		MAINTAIN,
 		RAMP_UP_DOWN,
@@ -22,9 +26,8 @@ public class World{
 
 	// singleton instance
 	private static World instance = null;
-
+	
 	private static CSVWriter writer = new CSVWriter();
-
 	private static Random rand = new Random();
 	
 	// interface inputs
@@ -37,16 +40,16 @@ public class World{
 	public double whiteAlbedo; //albedo-of-white
 
 	// global variables
-	public static double globalTemp = 0; // set global-temperature 0
+	public static double globalTemp = 0; // global-temperature
 	public static int numBlacks = 0; //num-blacks
 	public static int numWhites = 0; //num-whites
-	public static int numRabbits = 0; //rabbit extension
+	public static int numRabbits = 0; //extension
 	public static int ticks = 0;
 	public static int run = 0;
 
 	// map inside a map representing x,y grid for patches
 	private HashMap<Coordinate, Patch> patches = new HashMap<Coordinate, Patch>();
-	// rabbits roaming in the map
+	// rabbits roaming the world
 	private ArrayList<Rabbit> rabbits = new ArrayList<Rabbit>();
 
 	// private constructor for singleton
@@ -165,7 +168,8 @@ public class World{
 		}
 
 	}
-
+	
+	// diffuse 0.5
 	private void diffuseTemperature() {
 		// make a deep copy of the patches hashmap
 		HashMap<Coordinate,Patch> copyPatches = this.deepCopyPatches(this.patches);
@@ -193,7 +197,8 @@ public class World{
 			}
 		}
 	}
-
+	
+	// seed-blacks/whites-randomly + ask daisies [set age random max-age]
 	public void seedRandomly(Daisy.Color color){
 		int colorPercent;
 		if (color == Daisy.Color.BLACK) {
@@ -329,7 +334,6 @@ public class World{
 				newbornRabbits.add(rabbit.reproduce(validCoords.get(0)));
 			// rabbits eat when there's daisy
 			} else if (foodPatches.size() > 0 && rabbit.getEnergyLevel() < Rabbit.MAX_ENERGY){
-				//System.out.println("Rabbit ate daisy.");
 				Collections.shuffle(foodPatches);
 				rabbit.eat(foodPatches.get(0));
 			// rabbits move in search of daisy
@@ -340,7 +344,6 @@ public class World{
 			
 			// rabbits die after running out of energy
 			if (rabbit.getEnergyLevel() <= 0 || rabbit.getAge() > Params.maxRabbitAge) {
-//							System.out.println("Rabbit dies.");
 				World.numRabbits -= 1;
 				it.remove();
 			}
@@ -412,7 +415,8 @@ public class World{
 			patch.daisyDies(); //die
 		}
 	}
-
+	
+	// return total number of patches
 	private int totalPatches() {
 		// calculating no. of seedings required
 		int row = Math.abs(Params.xStart) + Math.abs(Params.xEnd) + 1;
@@ -420,6 +424,7 @@ public class World{
 		return row * column;
 	}
 	
+	// return all coordinates in world
 	private ArrayList<Coordinate> getAllCoordinates(){
 		ArrayList<Coordinate> allPatches = new ArrayList<Coordinate>();
 		
@@ -431,17 +436,20 @@ public class World{
 
 		return allPatches;
 	}
-
+	
+	// record interesting data into writer
 	private void recordData() {
 		writer.recordData(run, ticks, globalTemp, numWhites, numBlacks, numRabbits, solarLuminosity,
 				startPercentBlack, startPercentWhite, blackAlbedo, whiteAlbedo,
 				surfaceAlbedo);
 	}
 
+	// writing output to file
 	public void writeToFile(String fileName) {
 		writer.writeToFile(fileName);
 	}
-
+	
+	// overriding toString() to print results for each tick
 	@Override
 	public String toString() {
 		return String.format("Run: %d | Tick: %d | Global Temperature: %.2f | White: %d | "

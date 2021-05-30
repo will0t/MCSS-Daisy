@@ -5,6 +5,9 @@ import java.util.Scanner;
 
 import simulator.World.Scenario;
 
+/*
+ * The main class for the DaisyWorld simulation
+ */
 public class Simulator {
 	public static void main(String[] args) {
 		// Retrieving interface inputs
@@ -44,7 +47,7 @@ public class Simulator {
 
 		int runs = queryInt(sc, "Enter repetition times (>0): ", 0, Integer.MAX_VALUE);
 
-		// Creating world and setup procedure
+		// creating world and setup procedure
 		World world = World.getInstance();
 
 		System.out.println("Running simulations...");
@@ -59,7 +62,8 @@ public class Simulator {
 				count += 1;
 			}
 		}
-
+		
+		// writing output to csv
 		world.writeToFile("output.csv");
 	}
 

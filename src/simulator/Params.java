@@ -2,6 +2,9 @@ package simulator;
 
 import simulator.World.Scenario;
 
+/*
+ * Store constant parameters
+ */
 public class Params {
 	public static Scenario scenario = Scenario.RAMP_UP_DOWN;
 	
